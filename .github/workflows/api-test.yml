@@ -1,9 +1,10 @@
 
-name: ReqRes API Tests
+name: ReqRes API Testing
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
@@ -17,32 +18,22 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: '20'
 
       - name: Install Newman
         run: npm install -g newman newman-reporter-htmlextra
 
-      - name: Check repository files
+      - name: Run API Tests
         run: |
-          pwd
-          ls -la
-          find . -type f
-
-      - name: Run API tests
-        env:
-          REQRES_API_KEY: ${{ secrets.REQRES_API_KEY }}
-        run: |
-          newman run ReqRes_Collection.json \
+          newman run ReqRes.postman_collection.json \
             -e ReqRes_Environment.json \
-            -d users.csv \
-            --env-var "apiKey=$REQRES_API_KEY" \
             --reporters cli,htmlextra \
             --reporter-htmlextra-export report.html
 
-      - name: Upload HTML report
+      - name: Upload HTML Report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: reqres-api-report
+          name: ReqRes-API-Test-Report
           path: report.html
-          if-no-files-found: warn
+          if-no-files-found: ignore
